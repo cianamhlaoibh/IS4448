@@ -1,5 +1,6 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,21 +12,26 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.view.heroes.adapter.HeroesAdapter;
 
-public class HeroesFragment extends Fragment {
+public class HeroesFragment extends Fragment implements View.OnClickListener{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    RecyclerView rvHeroes;
-    HeroesAdapter adapter;
-    ArrayList<Hero> heroes;
+    private RecyclerView rvHeroes;
+    private HeroesAdapter adapter;
+    private ArrayList<Hero> heroes;
+    private FloatingActionButton fabAdd;
+
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -69,6 +75,18 @@ public class HeroesFragment extends Fragment {
         heroes.add(hero);
         adapter = new HeroesAdapter(heroes, getContext());
         rvHeroes.setAdapter(adapter);
+        fabAdd = root.findViewById(R.id.fabAdd);
+        fabAdd.setOnClickListener(this);
         return root;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fabAdd:
+                Intent intent = new Intent(getContext(), AddHeroActivity.class);
+                startActivity(intent);
+                break;
+        }
     }
 }

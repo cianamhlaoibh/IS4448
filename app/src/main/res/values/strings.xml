@@ -3,4 +3,16 @@
     <string name="title_heroes">Heroes</string>
     <string name="title_covid">COVID-19 Updates</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_add_hero">Add Hero</string>
+    <string name="add_name">Hero\'s Name</string>
+    <string name="real_name">Hero\'s Real Name</string>
+    <string name="rating">Hero\'s Rating</string>
+    <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string-array name="teams">
+        <item>Avengers</item>
+        <item>Justice League</item>
+        <item>X-Men</item>
+        <item>Fantastic Four</item>
+    </string-array>
 </resources>

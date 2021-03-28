@@ -34,7 +34,7 @@ public class HeroesAdapter extends RecyclerView.Adapter<HeroesViewHolder> {
         Hero hero = heroes.get(position);
         holder.tvName.setText(hero.getName());
         holder.tvRealName.setText(hero.getRealName());
-        holder.rbRating.setNumStars(hero.getRating());
+        holder.rbRating.setRating(hero.getRating());
         holder.tvTeam.setText(hero.getTeam());
     }
 

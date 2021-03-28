@@ -3,10 +3,10 @@ package ie.app.a117362356_is4448_ca2.model;
 public class Hero {
     private String name;
     private String realName;
-    private int rating;
+    private float rating;
     private String team;
 
-    public Hero(String name, String realName, int rating, String team) {
+    public Hero(String name, String realName, float rating, String team) {
         this.name = name;
         this.realName = realName;
         this.rating = rating;
@@ -29,7 +29,7 @@ public class Hero {
         this.realName = realName;
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 
