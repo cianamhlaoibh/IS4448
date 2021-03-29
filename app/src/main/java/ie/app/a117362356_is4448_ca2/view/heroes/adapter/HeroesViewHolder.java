@@ -6,6 +6,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ie.app.a117362356_is4448_ca2.R;
@@ -13,11 +14,13 @@ import ie.app.a117362356_is4448_ca2.R;
 public class HeroesViewHolder extends RecyclerView.ViewHolder {
     TextView tvName, tvRealName, tvTeam;
     RatingBar rbRating;
+    ConstraintLayout clHeroHolder;
     public HeroesViewHolder(@NonNull View itemView) {
         super(itemView);
         tvName = itemView.findViewById(R.id.tvName);
         tvRealName = itemView.findViewById(R.id.tvRealName);
         tvTeam = itemView.findViewById(R.id.tvTeam);
         rbRating = itemView.findViewById(R.id.rbRating);
+        clHeroHolder = itemView.findViewById(R.id.clHeroHolder);
     }
 }

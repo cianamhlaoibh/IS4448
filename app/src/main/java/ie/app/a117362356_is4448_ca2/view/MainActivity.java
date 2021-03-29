@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -13,6 +15,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.view.covid.CovidFragment;
 import ie.app.a117362356_is4448_ca2.view.heroes.ui.HeroesFragment;
+
+//https://androidwave.com/bottom-navigation-bar-android-example/
 
 public class MainActivity extends AppCompatActivity {
 

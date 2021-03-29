@@ -6,16 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import ie.app.a117362356_is4448_ca2.view.heroes.ui.EditHeroFragment;
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 
 public class HeroesAdapter extends RecyclerView.Adapter<HeroesViewHolder> {
     private List<Hero> heroes;
     private Context contx;
+    private final int SHOW_MENU = 1;
+    private final int HIDE_MENU = 2;
 
     public HeroesAdapter(List<Hero> heroes, Context contx) {
         this.heroes = heroes;
@@ -30,13 +34,24 @@ public class HeroesAdapter extends RecyclerView.Adapter<HeroesViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull HeroesViewHolder holder, int position) {
-        Hero hero = heroes.get(position);
+    public void onBindViewHolder(@NonNull final HeroesViewHolder holder, int position) {
+        final Hero hero = heroes.get(position);
         holder.tvName.setText(hero.getName());
         holder.tvRealName.setText(hero.getRealName());
         holder.rbRating.setRating(hero.getRating());
         holder.tvTeam.setText(hero.getTeam());
+
+        holder.clHeroHolder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //https://stackoverflow.com/questions/28984879/how-to-open-a-different-fragment-on-recyclerview-onclick
+                AppCompatActivity activity = (AppCompatActivity) contx;
+                EditHeroFragment fragment = EditHeroFragment.newInstance(hero.getName(), hero.getRealName());
+                activity.getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
