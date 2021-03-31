@@ -1,6 +1,9 @@
 package ie.app.a117362356_is4448_ca2.view.covid;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.model.CovidStats;
+import ie.app.a117362356_is4448_ca2.model.Hero;
+import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
+import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
 
 public class CovidFragment extends Fragment {
+
+    private HeroServiceReceiver serviceReceiver;
+    protected HttpBoundService.BackGroundBinder httpBinder;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,9 +60,31 @@ public class CovidFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        serviceReceiver = (HeroServiceReceiver) context;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        httpBinder = serviceReceiver.getBinder();
+        if (httpBinder != null) {
+            httpBinder.getCovidStats("ireland",getCallBack);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_covid, container, false);
     }
+
+    public final Handler getCallBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            ArrayList<CovidStats> stats = (ArrayList<CovidStats>) msg.obj;
+        }
+    };
 }

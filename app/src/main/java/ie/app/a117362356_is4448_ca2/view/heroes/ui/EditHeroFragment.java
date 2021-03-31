@@ -1,54 +1,52 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import android.widget.Spinner;
 
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.model.Hero;
+import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
+import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link EditHeroFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EditHeroFragment extends Fragment {
+public class EditHeroFragment extends Fragment{
     Toolbar toolbar;
-    TextView tvHero;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static String ARG_PARAM2 = "param2";
+    EditText etName, etRealName;
+    RatingBar rbRating;
+    Spinner spTeam;
+    private HeroServiceReceiver serviceReceiver;
+    protected HttpBoundService.BackGroundBinder httpBinder;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private static final String ARG_HERO = "hero";
+    private Hero hero;
 
     public EditHeroFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EditHeroFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static EditHeroFragment newInstance(String param1, String param2) {
+    public static EditHeroFragment newInstance(Hero hero) {
         EditHeroFragment fragment = new EditHeroFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putParcelable(ARG_HERO, hero);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,9 +56,14 @@ public class EditHeroFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            hero = getArguments().getParcelable(ARG_HERO);
         }
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        serviceReceiver = (HeroServiceReceiver) context;
     }
 
     @Override
@@ -68,12 +71,39 @@ public class EditHeroFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_edit_hero, container, false);
-        tvHero = root.findViewById(R.id.tvHero);
-        tvHero.setText(mParam1);
         toolbar = root.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setHasOptionsMenu(true);
+
+        etName = root.findViewById(R.id.etName);
+        etRealName = root.findViewById(R.id.etRealName);
+        rbRating = root.findViewById(R.id.rbRating);
+        spTeam = root.findViewById(R.id.spTeam);
+
+        initValues();
         return root;
+    }
+
+    private void initValues() {
+        etName.setText(hero.getName());
+        etRealName.setText(hero.getRealName());
+        rbRating.setRating(hero.getRating());
+        String compareValue = String.valueOf(hero.getTeam());
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.teams, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTeam.setAdapter(adapter);
+        if (compareValue != null) {
+            int spinnerPosition = adapter.getPosition(compareValue);
+            spTeam.setSelection(spinnerPosition);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_done, menu);
+        return;
     }
 
     @Override
@@ -83,8 +113,12 @@ public class EditHeroFragment extends Fragment {
             case android.R.id.home:
                 getActivity().onBackPressed();
                 return true;
+            case R.id.action_save:
+                //TODO
+                break;
             default:
                 return super.onOptionsItemSelected(item);
         }
+        return true;
     }
 }

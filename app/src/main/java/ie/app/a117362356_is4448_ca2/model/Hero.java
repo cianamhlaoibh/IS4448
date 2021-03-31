@@ -1,16 +1,28 @@
 package ie.app.a117362356_is4448_ca2.model;
 
-public class Hero {
-    private String name;
-    private String realName;
-    private float rating;
-    private String team;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-    public Hero(String name, String realName, float rating, String team) {
+public class Hero implements Parcelable {
+    private int id;
+    private String name;
+    private String realname;
+    private float rating;
+    private String teamaffiliation;
+
+    public Hero(String name, String realname, float rating, String teamaffiliation) {
         this.name = name;
-        this.realName = realName;
+        this.realname = realname;
         this.rating = rating;
-        this.team = team;
+        this.teamaffiliation = teamaffiliation;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -22,11 +34,11 @@ public class Hero {
     }
 
     public String getRealName() {
-        return realName;
+        return realname;
     }
 
     public void setRealName(String realName) {
-        this.realName = realName;
+        this.realname = realName;
     }
 
     public float getRating() {
@@ -38,10 +50,44 @@ public class Hero {
     }
 
     public String getTeam() {
-        return team;
+        return teamaffiliation;
     }
 
     public void setTeam(String team) {
-        this.team = team;
+        this.teamaffiliation = team;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(realname);
+        dest.writeFloat(rating);
+        dest.writeString(teamaffiliation);
+    }
+
+    protected Hero(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        realname = in.readString();
+        rating = in.readFloat();
+        teamaffiliation = in.readString();
+    }
+
+    public static final Creator<Hero> CREATOR = new Creator<Hero>() {
+        @Override
+        public Hero createFromParcel(Parcel in) {
+            return new Hero(in);
+        }
+
+        @Override
+        public Hero[] newArray(int size) {
+            return new Hero[size];
+        }
+    };
 }

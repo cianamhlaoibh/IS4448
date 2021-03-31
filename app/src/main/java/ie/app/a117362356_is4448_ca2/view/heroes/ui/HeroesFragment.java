@@ -1,11 +1,11 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
-import android.content.Intent;
+import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,14 +26,16 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.dao.HeroDao;
 import ie.app.a117362356_is4448_ca2.model.Hero;
+import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.heroes.adapter.HeroesAdapter;
+import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
@@ -42,6 +44,9 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
  * <p>
  * - Source - Swipe gestures in Recycler View | Android https://www.youtube.com/watch?v=rcSNkSJ624U
  * *    - Created By yoursTRULY
+ * <p>
+ * <p>
+ * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android
  */
 public class HeroesFragment extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
@@ -52,9 +57,11 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     private RecyclerView rvHeroes;
     private HeroesAdapter adapter;
     private ArrayList<Hero> heroes;
-    private FloatingActionButton fabAdd;
+    //private FloatingActionButton fabAdd;
     private Toolbar toolbar;
-
+    private HeroDao dao;
+    private HeroServiceReceiver serviceReceiver;
+    protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -92,6 +99,12 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        serviceReceiver = (HeroServiceReceiver) context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -103,20 +116,34 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         rvHeroes = root.findViewById(R.id.rvHeroes);
         rvHeroes.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         heroes = new ArrayList<>();
-        Hero hero = new Hero("SpiderMan", "Peter Parker", 5, "Avengers");
-        heroes.add(hero);
-        Hero hero1 = new Hero("SpiderMan", "Peter Parker", 5, "Avengers");
-        heroes.add(hero1);
-        Hero hero2 = new Hero("SpiderMan", "Peter Parker", 5, "Avengers");
-        heroes.add(hero2);
         adapter = new HeroesAdapter(heroes, getContext());
         rvHeroes.setAdapter(adapter);
-        fabAdd = root.findViewById(R.id.fabAdd);
-        fabAdd.setOnClickListener(this);
+        dao = new HeroDao();
+
+        //fabAdd = root.findViewById(R.id.fabAdd);
+        //fabAdd.setOnClickListener(this);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(rvHeroes);
         return root;
+    }
+
+    public final Handler getCallBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            heroes = (ArrayList<Hero>) msg.obj;
+            //notifing data set changed from within adapter has adapter.notifyDataSetChanged() was not working here
+            adapter.updateDataSet(heroes);
+        }
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        httpBinder = serviceReceiver.getBinder();
+        if (httpBinder != null) {
+            httpBinder.selectHeroes(getCallBack);
+        }
     }
 
     @Override
@@ -153,6 +180,8 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         return;
     }
 
+    private int deletePostion;
+    private Hero deleteHero;
     ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
         @Override
         public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -164,8 +193,17 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
             final int position = viewHolder.getAdapterPosition();
             switch (direction) {
                 case ItemTouchHelper.LEFT:
+                    if (httpBinder != null) {
+                        deletePostion = position;
+                        deleteHero = heroes.get(deletePostion);
+                        httpBinder.deleteHero(deleteHero.getId(), deleteCallBack);
+                    }
                     break;
                 case ItemTouchHelper.RIGHT:
+                    //https://stackoverflow.com/questions/28984879/how-to-open-a-different-fragment-on-recyclerview-onclick
+                    AppCompatActivity activity = (AppCompatActivity) getContext();
+                    EditHeroFragment fragment = EditHeroFragment.newInstance(heroes.get(position));
+                    activity.getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
                     break;
             }
         }
@@ -183,4 +221,32 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
         }
     };
+
+    public final Handler deleteCallBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Boolean result = (Boolean) msg.obj;
+            if (result == true) {
+                String message = "Are you sure you want to delete" + deleteHero.getName();
+                Snackbar.make(rvHeroes, message, Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                heroes.add(deletePostion, deleteHero);
+                                adapter.notifyItemInserted(deletePostion);
+                                httpBinder.createHero(deleteHero, createCallBack);
+                            }
+                        }).show();
+            } else {
+                Toast.makeText(getContext(), "Error occurred! Please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
+
+    public final Handler createCallBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+        }
+    };
 }
+

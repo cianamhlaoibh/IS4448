@@ -1,22 +1,41 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RatingBar;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.model.Hero;
+import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
+import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
 
-public class AddHeroFragment extends Fragment {
+/**
+ * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android
+ */
+public class AddHeroFragment extends Fragment implements View.OnClickListener{
 
     Toolbar toolbar;
+    Button btnAdd, btnCanel;
+    EditText etName, etRealName;
+    RatingBar rbRating;
+    Spinner spTeam;
+    private HeroServiceReceiver serviceReceiver;
+    protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,7 +47,6 @@ public class AddHeroFragment extends Fragment {
     private String mParam2;
 
     public AddHeroFragment() {
-        // Required empty public constructor
     }
 
     public static AddHeroFragment newInstance() {
@@ -47,16 +65,37 @@ public class AddHeroFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        serviceReceiver = (HeroServiceReceiver) context;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_add_hero, container, false);
         //https://programming.vip/docs/add-toolbar-menu-to-fragment.html
         toolbar = root.findViewById(R.id.toolbar);
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        etName = root.findViewById(R.id.etName);
+        etRealName = root.findViewById(R.id.etRealName);
+        rbRating = root.findViewById(R.id.rbRating);
+        spTeam = root.findViewById(R.id.spTeam);
+        btnAdd = root.findViewById(R.id.btnAdd);
+        btnCanel = root.findViewById(R.id.btnCancel);
+        btnAdd.setOnClickListener(this);
+        btnCanel.setOnClickListener(this);
         return root;
     }
+
+    public final Handler myCallBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Hero h = (Hero) msg.obj;
+            Toast.makeText(getContext(), h.getName() + " added!", Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -67,6 +106,29 @@ public class AddHeroFragment extends Fragment {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnAdd:
+                String name, realName, team;
+                float rating;
+                name = etName.getText().toString().trim();
+                realName = etRealName.getText().toString().trim();
+                rating = rbRating.getRating();
+                team = spTeam.getSelectedItem().toString();
+                Hero h = new Hero(name, realName, rating, team);
+                httpBinder = serviceReceiver.getBinder();
+                if (httpBinder != null) {
+                    httpBinder.createHero(h,myCallBack);
+                }
+                break;
+            case R.id.btnCancel:
+                //https://stackoverflow.com/questions/20812922/how-to-close-the-current-fragment-by-using-button-like-the-back-button
+                getActivity().getFragmentManager().popBackStack();
+                break;
         }
     }
 }
