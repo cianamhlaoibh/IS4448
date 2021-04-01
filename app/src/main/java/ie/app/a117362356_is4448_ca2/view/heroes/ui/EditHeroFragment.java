@@ -22,7 +22,7 @@ import android.widget.Spinner;
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
-import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
+import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,7 +34,7 @@ public class EditHeroFragment extends Fragment{
     EditText etName, etRealName;
     RatingBar rbRating;
     Spinner spTeam;
-    private HeroServiceReceiver serviceReceiver;
+    private ServiceReceiver serviceReceiver;
     protected HttpBoundService.BackGroundBinder httpBinder;
 
     private static final String ARG_HERO = "hero";
@@ -63,7 +63,7 @@ public class EditHeroFragment extends Fragment{
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (HeroServiceReceiver) context;
+        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Override

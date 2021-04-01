@@ -35,7 +35,7 @@ import ie.app.a117362356_is4448_ca2.dao.HeroDao;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.heroes.adapter.HeroesAdapter;
-import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
+import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 
@@ -60,7 +60,7 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     //private FloatingActionButton fabAdd;
     private Toolbar toolbar;
     private HeroDao dao;
-    private HeroServiceReceiver serviceReceiver;
+    private ServiceReceiver serviceReceiver;
     protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename and change types of parameters
@@ -102,7 +102,7 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (HeroServiceReceiver) context;
+        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Nullable

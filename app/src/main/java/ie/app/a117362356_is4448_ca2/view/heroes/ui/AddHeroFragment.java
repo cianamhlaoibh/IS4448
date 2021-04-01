@@ -22,7 +22,7 @@ import android.widget.Toast;
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
-import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
+import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 
 /**
  * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android
@@ -34,7 +34,7 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     EditText etName, etRealName;
     RatingBar rbRating;
     Spinner spTeam;
-    private HeroServiceReceiver serviceReceiver;
+    private ServiceReceiver serviceReceiver;
     protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -67,7 +67,7 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (HeroServiceReceiver) context;
+        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Override

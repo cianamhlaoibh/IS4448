@@ -3,6 +3,10 @@ package ie.app.a117362356_is4448_ca2.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * https://medium.com/techmacademy/how-to-implement-and-use-a-parcelable-class-in-android-part-1-28cca73fc2d1
+ * https://medium.com/techmacademy/how-to-implement-and-use-a-parcelable-class-in-android-part-2-1793ce358bd0
+ */
 public class Hero implements Parcelable {
     private int id;
     private String name;

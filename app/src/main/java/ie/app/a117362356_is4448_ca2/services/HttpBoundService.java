@@ -32,10 +32,9 @@ public class HttpBoundService extends Service {
 
     public class BackGroundBinder extends Binder {
 
-        private ThreadGroup myThreadGroup = new ThreadGroup("Hero");
-
+        private ThreadGroup HeroThreadGroup = new ThreadGroup("Hero");
         public void selectHeroes(final Handler handler) {
-            new Thread(myThreadGroup, new Runnable() {
+            new Thread(HeroThreadGroup, new Runnable() {
                 @Override
                 public void run() {
                     ArrayList<Hero> heroList = HeroDao.selectHeroes();
@@ -47,7 +46,7 @@ public class HttpBoundService extends Service {
         }
 
         public void createHero(final Hero hero, final Handler handler){
-            new Thread(myThreadGroup, new Runnable() {
+            new Thread(HeroThreadGroup, new Runnable() {
                 @Override
                 public void run() {
                     Hero h = HeroDao.insertHero(hero);
@@ -59,7 +58,7 @@ public class HttpBoundService extends Service {
         }
 
         public void updateHero(final Hero hero, final Handler handler) {
-            new Thread(myThreadGroup, new Runnable() {
+            new Thread(HeroThreadGroup, new Runnable() {
                 @Override
                 public void run() {
                     Hero h = HeroDao.updateHero(hero);
@@ -71,7 +70,7 @@ public class HttpBoundService extends Service {
         }
 
         public void deleteHero(final int heroId, final Handler handler) {
-            new Thread(myThreadGroup, new Runnable() {
+            new Thread(HeroThreadGroup, new Runnable() {
                 @Override
                 public void run() {
                     Boolean b = HeroDao.deleteHero(heroId);
@@ -82,8 +81,9 @@ public class HttpBoundService extends Service {
             }).start();
         }
 
+        private ThreadGroup CovidThreadGroup = new ThreadGroup("Covid");
         public void getCovidStats(final String country, final Handler handler) {
-            new Thread(myThreadGroup, new Runnable() {
+            new Thread(CovidThreadGroup, new Runnable() {
                 @Override
                 public void run() {
                     ArrayList<CovidStats> covidStatsList = CovidDao.selectCountryStats(country);
@@ -93,5 +93,7 @@ public class HttpBoundService extends Service {
                 }
             }).start();
         }
+
+
     }
 }

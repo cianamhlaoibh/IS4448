@@ -22,11 +22,11 @@ import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.covid.CovidFragment;
 import ie.app.a117362356_is4448_ca2.view.heroes.ui.AddHeroFragment;
 import ie.app.a117362356_is4448_ca2.view.heroes.ui.HeroesFragment;
-import ie.app.a117362356_is4448_ca2.view.utils.HeroServiceReceiver;
+import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 
 //https://androidwave.com/bottom-navigation-bar-android-example/
 
-public class MainActivity extends AppCompatActivity implements HeroServiceReceiver {
+public class MainActivity extends AppCompatActivity implements ServiceReceiver {
 
     BottomNavigationView bottomNavigation;
     private FloatingActionButton fabAdd;
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements HeroServiceReceiv
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
-            isBound = false;
+            isBound= false;
         }
     }
 

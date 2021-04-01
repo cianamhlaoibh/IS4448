@@ -15,6 +15,8 @@ import ie.app.a117362356_is4448_ca2.model.JsonHero;
  * References
  * - Project: IS4448BeerServiceDemo
  * - Creator: Michael Gleeson on 14/02/2019
+ *
+ * https://howtodoinjava.com/gson/gson-parse-json-array/
  */
 public class HeroDao {
 
