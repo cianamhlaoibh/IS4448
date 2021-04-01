@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.dao.CovidDao;
 import ie.app.a117362356_is4448_ca2.model.CovidStats;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
@@ -103,10 +104,12 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     @Override
     public void onResume() {
         super.onResume();
-        httpBinder = serviceReceiver.getBinder();
-        if (httpBinder != null) {
-            httpBinder.getCovidStats("ireland", getCallBack);
-        }
+//        httpBinder = serviceReceiver.getBinder();
+////        if (httpBinder != null) {
+////            httpBinder.getCovidStats("ireland", getCallBack);
+////        }
+        CovidDao dao = new CovidDao();
+        dao.selectCountryStats("ireland", getCallBack);
     }
 
     @Nullable

@@ -19,7 +19,12 @@ import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.json.JSONException;
+
+import java.util.ArrayList;
+
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.dao.HeroDao;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
@@ -120,9 +125,11 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
                 rating = rbRating.getRating();
                 team = spTeam.getSelectedItem().toString();
                 Hero h = new Hero(name, realName, rating, team);
-                httpBinder = serviceReceiver.getBinder();
-                if (httpBinder != null) {
-                    httpBinder.createHero(h,myCallBack);
+                HeroDao dao = new HeroDao();
+                try {
+                    dao.insertHero(h, insertHeroCallback);
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
                 break;
             case R.id.btnCancel:
@@ -131,4 +138,11 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
                 break;
         }
     }
+
+    public final Handler insertHeroCallback = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Toast.makeText(getContext(), "Hero added", Toast.LENGTH_SHORT).show();
+        }
+    };
 }

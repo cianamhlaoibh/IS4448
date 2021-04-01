@@ -27,4 +27,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_edit_heroes">Edit Hero</string>
+    <string name="ouch_something_went_wrong">Ouch Something Went Wrong</string>
+    <string name="restart_app">Restart App</string>
+    <string name="_404_error_image">404 Error Image</string>
 </resources>

@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +20,12 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.io.DataOutput;
 
 import ie.app.a117362356_is4448_ca2.R;
+import ie.app.a117362356_is4448_ca2.dao.HeroDao;
 import ie.app.a117362356_is4448_ca2.model.Hero;
 import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
 import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
@@ -114,11 +120,29 @@ public class EditHeroFragment extends Fragment{
                 getActivity().onBackPressed();
                 return true;
             case R.id.action_save:
-                //TODO
+                HeroDao dao = new HeroDao();
+                String name, realName, team;
+                float rating;
+                name = etName.getText().toString().trim();
+                realName = etRealName.getText().toString().trim();
+                rating = rbRating.getRating();
+                team = spTeam.getSelectedItem().toString();
+                hero.setName(name);
+                hero.setRating(rating);
+                hero.setRealName(realName);
+                hero.setTeam(team);
+                dao.updateHero(hero, updateHeroCallback);
                 break;
             default:
                 return super.onOptionsItemSelected(item);
         }
         return true;
     }
+
+    public final Handler updateHeroCallback = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            Toast.makeText(getContext(), "Hero updated", Toast.LENGTH_SHORT).show();
+        }
+    };
 }

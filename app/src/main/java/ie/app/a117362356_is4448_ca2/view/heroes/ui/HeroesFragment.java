@@ -140,10 +140,8 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        httpBinder = serviceReceiver.getBinder();
-        if (httpBinder != null) {
-            httpBinder.selectHeroes(getCallBack);
-        }
+        HeroDao dao = new HeroDao();
+        dao.selectHeroes(getCallBack);
     }
 
     @Override
@@ -196,7 +194,7 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
                     if (httpBinder != null) {
                         deletePostion = position;
                         deleteHero = heroes.get(deletePostion);
-                        httpBinder.deleteHero(deleteHero.getId(), deleteCallBack);
+                        //httpBinder.deleteHero(deleteHero.getId(), deleteCallBack);
                     }
                     break;
                 case ItemTouchHelper.RIGHT:
@@ -234,7 +232,7 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
                             public void onClick(View v) {
                                 heroes.add(deletePostion, deleteHero);
                                 adapter.notifyItemInserted(deletePostion);
-                                httpBinder.createHero(deleteHero, createCallBack);
+                               // httpBinder.createHero(deleteHero, createCallBack);
                             }
                         }).show();
             } else {

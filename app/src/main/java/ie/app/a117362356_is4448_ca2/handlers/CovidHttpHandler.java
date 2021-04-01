@@ -1,48 +1,37 @@
 package ie.app.a117362356_is4448_ca2.handlers;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class CovidHttpHandler {
+import org.json.JSONArray;
+import org.json.JSONException;
 
-    public static String getStats(String uri) {
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
-        String s = "no response";
-        HttpURLConnection conn = null;
-        int http_status = 0;
+import ie.app.a117362356_is4448_ca2.MyApplication;
+import ie.app.a117362356_is4448_ca2.model.CovidStats;
+import ie.app.a117362356_is4448_ca2.view.utils.VolleyCovidCallback;
 
-        try {
-            URL url = new URL(uri);
-            conn = (HttpURLConnection)url.openConnection();
-            InputStream in = conn.getInputStream();
-            http_status = conn.getResponseCode();
+public class CovidHttpHandler{
 
-            if (http_status == 200) {
-                s = streamToString(in); //This is the response
-            } else {
-                s = "bad response";
+    public static void getStats(String url, final VolleyCovidCallback callback) {
+        JsonArrayRequest req = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                callback.onSuccessResponse(response);
             }
-        } catch (MalformedURLException m) {
-            s = "malformed URL exception";
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            conn.disconnect();
-        }
-        return s;
-    }
-
-    private static String streamToString(InputStream in) throws IOException {
-        StringBuilder out = new StringBuilder();
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        for(String line = br.readLine(); line != null; line = br.readLine())
-            out.append(line);
-        br.close();
-        return out.toString();
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("Error: ", error.getMessage());
+            }
+        });
+        // add the request object to the queue to be executed
+        MyApplication.getInstance().addToRequestQueue(req);
     }
 }

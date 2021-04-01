@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--https://medium.com/codechai/custom-error-screen-instead-of-default-crash-dialog-android-8727ac2fcd50-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:fontFamily="sans-serif"
+        android:text="@string/ouch_something_went_wrong"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_pixeltrue_error_1"
+        android:contentDescription="@string/_404_error_image" />
+    <Button
+        android:id="@+id/restartApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:text="@string/restart_app"
+        android:textAllCaps="false" />
+</RelativeLayout>
