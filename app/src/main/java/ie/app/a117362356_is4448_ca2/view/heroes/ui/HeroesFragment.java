@@ -10,11 +10,13 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -29,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -53,6 +56,8 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
  * <p>
  * <p>
  * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android
+ *
+ * https://guides.codepath.com/android/implementing-pull-to-refresh-guide
  */
 public class HeroesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     // TODO: Rename parameter arguments, choose names that match
@@ -61,11 +66,13 @@ public class HeroesFragment extends Fragment implements View.OnClickListener, Ad
     private static final String ARG_PARAM2 = "param2";
 
     private RecyclerView rvHeroes;
+    private SwipeRefreshLayout swipeContainer;
     private HeroesAdapter adapter;
     private ArrayList<Hero> heroes;
     //private FloatingActionButton fabAdd;
     private Toolbar toolbar;
     private Spinner spTeam, spRating;
+    ProgressBar pbLoad;
     private HeroDao dao;
 
     // TODO: Rename and change types of parameters
@@ -126,11 +133,23 @@ public class HeroesFragment extends Fragment implements View.OnClickListener, Ad
 
         spRating = root.findViewById(R.id.spRating);
         spTeam = root.findViewById(R.id.spTeam);
-        //ArrayAdapter<CharSequence> spAdapter = ArrayAdapter.createFromResource(getContext(),R.array.teams, android.R.layout.simple_spinner_item);
-        //spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        //spTeam.setAdapter(spAdapter);
         spTeam.setOnItemSelectedListener(this);
         spRating.setOnItemSelectedListener(this);
+
+        pbLoad = root.findViewById(R.id.pbLoad);
+        pbLoad.setVisibility(View.VISIBLE);
+
+        swipeContainer = root.findViewById(R.id.swipeContainer);
+        // Setup refresh listener which triggers new data loading
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                dao.selectHeroes(getCallBack);
+            }
+        });
         //fabAdd = root.findViewById(R.id.fabAdd);
         //fabAdd.setOnClickListener(this);
 
@@ -145,6 +164,8 @@ public class HeroesFragment extends Fragment implements View.OnClickListener, Ad
             heroes = (ArrayList<Hero>) msg.obj;
             //notifing data set changed from within adapter has adapter.notifyDataSetChanged() was not working here
             adapter.updateDataSet(heroes);
+            pbLoad.setVisibility(View.GONE);
+            swipeContainer.setRefreshing(false);
         }
     };
 

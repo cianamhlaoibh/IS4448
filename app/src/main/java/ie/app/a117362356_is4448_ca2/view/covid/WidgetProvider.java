@@ -2,7 +2,6 @@ package ie.app.a117362356_is4448_ca2.view.covid;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
-import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
-import ie.app.a117362356_is4448_ca2.model.CovidStats;
+import ie.app.a117362356_is4448_ca2.model.CovidCountryStats;
 
 
 /**
@@ -42,12 +41,12 @@ public class WidgetProvider extends AppWidgetProvider {
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void handleMessage(Message msg) {
-            ArrayList<CovidStats> stats = (ArrayList<CovidStats>) msg.obj;
+            ArrayList<CovidCountryStats> stats = (ArrayList<CovidCountryStats>) msg.obj;
             long cases, deaths;
             int size;
             size = stats.size();
-            CovidStats today = stats.get(size);
-            CovidStats yesterday = stats.get(size - 1);
+            CovidCountryStats today = stats.get(size);
+            CovidCountryStats yesterday = stats.get(size - 1);
             cases = today.getConfirmed() - yesterday.getConfirmed();
             deaths = today.getDeaths() - yesterday.getDeaths();
 

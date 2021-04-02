@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -40,24 +42,11 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     RatingBar rbRating;
     Spinner spTeam;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public AddHeroFragment() {
     }
 
     public static AddHeroFragment newInstance() {
         AddHeroFragment fragment = new AddHeroFragment();
-        Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -126,7 +115,7 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
                 break;
             case R.id.btnCancel:
                 //https://stackoverflow.com/questions/20812922/how-to-close-the-current-fragment-by-using-button-like-the-back-button
-                getActivity().getFragmentManager().popBackStack();
+                getActivity().onBackPressed();
                 break;
         }
     }
@@ -136,12 +125,12 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
         public void handleMessage(Message msg) {
             Boolean error = (Boolean) msg.obj;
             if (error == false) {
-                getActivity().getFragmentManager().popBackStack();
                 Toast.makeText(getContext(), "Hero added", Toast.LENGTH_SHORT).show();
+                //https://medium.com/@bherbst/managing-the-fragment-back-stack-373e87e4ff62
+                getActivity().getSupportFragmentManager().popBackStackImmediate();
             }else{
                 Toast.makeText(getContext(), "Error occurred!", Toast.LENGTH_SHORT).show();
             }
-
         }
     };
 }

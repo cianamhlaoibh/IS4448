@@ -60,9 +60,12 @@ public class HeroDao {
             @Override
             public void onSuccessStringResponse(String result) {
                 Gson gson = new Gson();
-                JsonHero results = gson.fromJson(result, JsonHero.class);
+                JsonHero j = gson.fromJson(result, JsonHero.class);
                 Message msg = new Message();
-                msg.obj = results.getHeroes();
+                if (j.getError().equals("true"))
+                    msg.obj = true;
+                else
+                    msg.obj = false;
                 handler.sendMessage(msg);
             }
         });

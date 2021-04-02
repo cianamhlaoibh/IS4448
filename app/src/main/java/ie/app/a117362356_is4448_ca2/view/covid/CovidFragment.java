@@ -5,19 +5,16 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.TestLooperManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RadioButton;
+import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,9 +40,7 @@ import java.util.Locale;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
-import ie.app.a117362356_is4448_ca2.model.CovidStats;
-import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
-import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
+import ie.app.a117362356_is4448_ca2.model.CovidCountryStats;
 
 /**
  * https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
@@ -57,7 +52,8 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     TextView tvCases, tvDeaths, tvTotalConfirmed, tvTotalDeath, tvTotalActive, tvTotalRecovered;
     RadioGroup rgTimeRange;
     private LineChart lineChart;
-    ArrayList<CovidStats> stats;
+    ProgressBar pbLoad;
+    ArrayList<CovidCountryStats> stats;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -105,10 +101,6 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     @Override
     public void onResume() {
         super.onResume();
-//        httpBinder = serviceReceiver.getBinder();
-////        if (httpBinder != null) {
-////            httpBinder.getCovidStats("ireland", getCallBack);
-////        }
         CovidDao dao = new CovidDao();
         dao.selectCountryStats("ireland", getCallBack);
     }
@@ -127,6 +119,9 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         rgTimeRange = root.findViewById(R.id.rgTimeRange);
         rgTimeRange.setOnCheckedChangeListener(this);
         configureLineChart();
+        pbLoad = root.findViewById(R.id.pbLoad);
+        pbLoad.setVisibility(View.VISIBLE);
+        //pbLoad.setAnimation(android.animation.ValueAnimator.sDurationScale == 0.0f);
         return root;
     }
 
@@ -152,15 +147,16 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void handleMessage(Message msg) {
-            stats = (ArrayList<CovidStats>) msg.obj;
+            stats = (ArrayList<CovidCountryStats>) msg.obj;
             setDailyFigures(stats);
             setOverviewToDate(stats);
             setupChartData(stats, "All");
             updateWidget(stats);
+            pbLoad.setVisibility(View.GONE);
         }
     };
 
-    private void updateWidget(ArrayList<CovidStats> stats) {
+    private void updateWidget(ArrayList<CovidCountryStats> stats) {
         Application app = getActivity().getApplication();
         Intent intent = new Intent(getContext(), WidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -171,7 +167,7 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void setupChartData(List<CovidStats> stats, String timeRange) {
+    private void setupChartData(List<CovidCountryStats> stats, String timeRange) {
         ArrayList<Entry> dailyConfirmedCases = new ArrayList<>();
         float x, y;
         int size;
@@ -190,9 +186,9 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
                 break;
             case "Last Month": //shows cases for past 28 days
                 size= stats.size();
-                List<CovidStats> pastMonthsStats = stats.subList(size - 29, size);
+                List<CovidCountryStats> pastMonthsStats = stats.subList(size - 29, size);
                 for (int i = 1; i <= 28; i++) {
-                    CovidStats stat = pastMonthsStats.get(i);
+                    CovidCountryStats stat = pastMonthsStats.get(i);
                     Date statDate = stat.getDate();
                     long statTime = statDate.getTime();
                     x = statTime;
@@ -202,9 +198,9 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
                 break;
             case "Last Week":
                 size = stats.size();
-                List<CovidStats> pastWeeksStats = stats.subList(size - 8, size);
+                List<CovidCountryStats> pastWeeksStats = stats.subList(size - 8, size);
                 for (int i = 1; i <= 7; i++) {
-                    CovidStats stat = pastWeeksStats.get(i);
+                    CovidCountryStats stat = pastWeeksStats.get(i);
                     Date statDate = stat.getDate();
                     long statTime = statDate.getTime();
                     x = statTime;
@@ -237,8 +233,8 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     }
 
     //https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
-    private void setOverviewToDate(ArrayList<CovidStats> stats) {
-        CovidStats statsToday = stats.get(stats.size() - 1);
+    private void setOverviewToDate(ArrayList<CovidCountryStats> stats) {
+        CovidCountryStats statsToday = stats.get(stats.size() - 1);
         NumberFormat format = NumberFormat.getInstance();
         tvTotalConfirmed.setText(format.format(statsToday.getConfirmed()));
         tvTotalDeath.setText(format.format(statsToday.getDeaths()));
@@ -246,11 +242,11 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         tvTotalRecovered.setText(format.format(statsToday.getRecovered()));
     }
 
-    private void setDailyFigures(ArrayList<CovidStats> stats) {
+    private void setDailyFigures(ArrayList<CovidCountryStats> stats) {
         int size = stats.size();
         NumberFormat format = NumberFormat.getInstance();
-        CovidStats today = stats.get(size - 1);
-        CovidStats yesterday = stats.get(size - 2);
+        CovidCountryStats today = stats.get(size - 1);
+        CovidCountryStats yesterday = stats.get(size - 2);
         long cases = today.getConfirmed() - yesterday.getConfirmed();
         long deaths = today.getDeaths() - yesterday.getDeaths();
         tvCases.setText(format.format(cases));

@@ -4,7 +4,7 @@ import android.widget.SearchView;
 
 import java.util.Date;
 
-public class CovidStats {
+public class CovidCountryStats {
     private String ID;
     private String Country;
     private String CountryCode;

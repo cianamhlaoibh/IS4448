@@ -4,17 +4,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.MyApplication;
-import ie.app.a117362356_is4448_ca2.model.CovidStats;
 import ie.app.a117362356_is4448_ca2.view.utils.VolleyCovidCallback;
 
 public class CovidHttpHandler{

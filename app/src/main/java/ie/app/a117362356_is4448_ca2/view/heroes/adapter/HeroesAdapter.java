@@ -192,6 +192,6 @@ public class HeroesAdapter extends RecyclerView.Adapter<HeroesViewHolder> implem
         }
         return ratingF;
     }
-    
+
 }
 

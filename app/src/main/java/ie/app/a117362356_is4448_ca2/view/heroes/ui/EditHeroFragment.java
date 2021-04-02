@@ -36,7 +36,7 @@ import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
  * Use the {@link EditHeroFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EditHeroFragment extends Fragment{
+public class EditHeroFragment extends Fragment {
     Toolbar toolbar;
     EditText etName, etRealName;
     RatingBar rbRating;
@@ -140,7 +140,14 @@ public class EditHeroFragment extends Fragment{
     public final Handler updateHeroCallback = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Toast.makeText(getContext(), "Hero updated", Toast.LENGTH_SHORT).show();
+            Boolean error = (Boolean) msg.obj;
+            if (error == false) {
+                Toast.makeText(getContext(), "Hero updated", Toast.LENGTH_SHORT).show();
+                //https://medium.com/@bherbst/managing-the-fragment-back-stack-373e87e4ff62
+                getActivity().getSupportFragmentManager().popBackStackImmediate();
+            } else {
+                Toast.makeText(getContext(), "Error occurred!", Toast.LENGTH_SHORT).show();
+            }
         }
     };
 }
