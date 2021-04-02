@@ -126,13 +126,11 @@ public class HeroesFragment extends Fragment implements View.OnClickListener, Ad
 
         spRating = root.findViewById(R.id.spRating);
         spTeam = root.findViewById(R.id.spTeam);
-        ArrayAdapter<CharSequence> spAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.teams, android.R.layout.simple_spinner_item);
-        // Specify the layout to use when the list of choices appears
-        spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner
-        spTeam.setAdapter(spAdapter);
+        //ArrayAdapter<CharSequence> spAdapter = ArrayAdapter.createFromResource(getContext(),R.array.teams, android.R.layout.simple_spinner_item);
+        //spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //spTeam.setAdapter(spAdapter);
         spTeam.setOnItemSelectedListener(this);
+        spRating.setOnItemSelectedListener(this);
         //fabAdd = root.findViewById(R.id.fabAdd);
         //fabAdd.setOnClickListener(this);
 

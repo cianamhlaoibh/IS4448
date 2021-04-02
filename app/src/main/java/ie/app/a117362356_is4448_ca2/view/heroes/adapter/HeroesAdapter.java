@@ -192,10 +192,6 @@ public class HeroesAdapter extends RecyclerView.Adapter<HeroesViewHolder> implem
         }
         return ratingF;
     }
-
-    public void setFilterAttributes(String team, float rating) {
-        this.filterTeam = team;
-        this.filterRating = rating;
-    }
+    
 }
 
