@@ -39,8 +39,6 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     EditText etName, etRealName;
     RatingBar rbRating;
     Spinner spTeam;
-    private ServiceReceiver serviceReceiver;
-    protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -67,12 +65,6 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Override
@@ -142,7 +134,14 @@ public class AddHeroFragment extends Fragment implements View.OnClickListener{
     public final Handler insertHeroCallback = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Toast.makeText(getContext(), "Hero added", Toast.LENGTH_SHORT).show();
+            Boolean error = (Boolean) msg.obj;
+            if (error == false) {
+                getActivity().getFragmentManager().popBackStack();
+                Toast.makeText(getContext(), "Hero added", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getContext(), "Error occurred!", Toast.LENGTH_SHORT).show();
+            }
+
         }
     };
 }

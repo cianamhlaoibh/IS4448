@@ -1,6 +1,10 @@
 package ie.app.a117362356_is4448_ca2.view.covid;
 
+import android.app.Application;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -53,8 +57,6 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     TextView tvCases, tvDeaths, tvTotalConfirmed, tvTotalDeath, tvTotalActive, tvTotalRecovered;
     RadioGroup rgTimeRange;
     private LineChart lineChart;
-    private ServiceReceiver serviceReceiver;
-    protected HttpBoundService.BackGroundBinder httpBinder;
     ArrayList<CovidStats> stats;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -98,7 +100,6 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Override
@@ -155,8 +156,19 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
             setDailyFigures(stats);
             setOverviewToDate(stats);
             setupChartData(stats, "All");
+            updateWidget(stats);
         }
     };
+
+    private void updateWidget(ArrayList<CovidStats> stats) {
+        Application app = getActivity().getApplication();
+        Intent intent = new Intent(getContext(), WidgetProvider.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+
+        int[] ids = AppWidgetManager.getInstance(app).getAppWidgetIds(new ComponentName(app, WidgetProvider.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        getContext().sendBroadcast(intent);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void setupChartData(List<CovidStats> stats, String timeRange) {

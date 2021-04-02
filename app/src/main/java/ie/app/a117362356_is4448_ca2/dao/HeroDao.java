@@ -79,22 +79,36 @@ public class HeroDao {
             @Override
             public void onSuccessStringResponse(String result) {
                 Gson gson = new Gson();
-                JsonHero results = gson.fromJson(result, JsonHero.class);
+                JsonHero j = gson.fromJson(result, JsonHero.class);
                 Message msg = new Message();
-                msg.obj = results.getHeroes();
+                if (j.getError().equals("true"))
+                    msg.obj = true;
+                else
+                    msg.obj = false;
                 handler.sendMessage(msg);
             }
         });
     }
 
-    public boolean deleteHero(int heroId, final Handler handler) throws JsonSyntaxException {
+    public void deleteHero(int heroId, final Handler handler) throws JsonSyntaxException {
         String deleteConnURI = connURI + "deletehero&id=" + heroId;
-        String result = HeroHttpHandler.deleteHero(deleteConnURI);
-        Gson gson = new Gson();
-        JsonHero j = gson.fromJson(result, JsonHero.class);
-        if (j.getError().equals("true"))
-            return true;
-        else
-            return false;
+        HeroHttpHandler.deleteHero(deleteConnURI, new VolleyHeroCallback() {
+            @Override
+            public void onSuccessObjectResponse(JSONObject result) {
+
+            }
+
+            @Override
+            public void onSuccessStringResponse(String result) {
+                Gson gson = new Gson();
+                JsonHero j = gson.fromJson(result, JsonHero.class);
+                Message msg = new Message();
+                if (j.getError().equals("true"))
+                    msg.obj = true;
+                else
+                    msg.obj = false;
+                handler.sendMessage(msg);
+            }
+        });
     }
 }

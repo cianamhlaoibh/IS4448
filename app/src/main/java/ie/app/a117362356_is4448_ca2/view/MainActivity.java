@@ -26,7 +26,7 @@ import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 
 //https://androidwave.com/bottom-navigation-bar-android-example/
 
-public class MainActivity extends AppCompatActivity implements ServiceReceiver {
+public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigation;
     private FloatingActionButton fabAdd;
@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements ServiceReceiver {
         setContentView(R.layout.activity_main);
         bottomNavigation = findViewById(R.id.bottom_navigation);
         bottomNavigation.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
+        openFragment(HeroesFragment.newInstance("", ""));
         fabAdd = findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,47 +74,4 @@ public class MainActivity extends AppCompatActivity implements ServiceReceiver {
         transaction.commit();
     }
 
-    protected boolean isBound = false;
-    protected HttpBoundService.BackGroundBinder httpBinder;
-    protected ServiceConnection conn = new BackGroundServiceConnection();
-
-    @Override
-    public HttpBoundService.BackGroundBinder getBinder() {
-        if(isBound) {
-            return httpBinder;
-        }
-        return null;
-    }
-
-    protected class BackGroundServiceConnection implements ServiceConnection {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            // TODO Auto-generated method stub
-            httpBinder = (HttpBoundService.BackGroundBinder) service;
-            openFragment(HeroesFragment.newInstance("", ""));
-            isBound = true;
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-            isBound= false;
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Intent boundServiceIntent = new Intent(this, HttpBoundService.class);
-        bindService(boundServiceIntent, conn, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        // Unbind from the background service
-        if (isBound) {
-            unbindService(conn);
-            isBound = false;
-        }
-    }
 }

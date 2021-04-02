@@ -12,6 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +31,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -48,7 +54,7 @@ import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
  * <p>
  * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android
  */
-public class HeroesFragment extends Fragment implements View.OnClickListener {
+public class HeroesFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -59,9 +65,8 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     private ArrayList<Hero> heroes;
     //private FloatingActionButton fabAdd;
     private Toolbar toolbar;
+    private Spinner spTeam, spRating;
     private HeroDao dao;
-    private ServiceReceiver serviceReceiver;
-    protected HttpBoundService.BackGroundBinder httpBinder;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -102,7 +107,6 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Nullable
@@ -120,6 +124,15 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         rvHeroes.setAdapter(adapter);
         dao = new HeroDao();
 
+        spRating = root.findViewById(R.id.spRating);
+        spTeam = root.findViewById(R.id.spTeam);
+        ArrayAdapter<CharSequence> spAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.teams, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        spAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spTeam.setAdapter(spAdapter);
+        spTeam.setOnItemSelectedListener(this);
         //fabAdd = root.findViewById(R.id.fabAdd);
         //fabAdd.setOnClickListener(this);
 
@@ -137,10 +150,16 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         }
     };
 
+    public final Handler getFilterBack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+
+        }
+    };
+
     @Override
     public void onResume() {
         super.onResume();
-        HeroDao dao = new HeroDao();
         dao.selectHeroes(getCallBack);
     }
 
@@ -163,6 +182,7 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         inflater.inflate(R.menu.menu_search, menu);
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -171,10 +191,10 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
                 return false;
             }
         });
-
         return;
     }
 
@@ -191,11 +211,9 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
             final int position = viewHolder.getAdapterPosition();
             switch (direction) {
                 case ItemTouchHelper.LEFT:
-                    if (httpBinder != null) {
-                        deletePostion = position;
-                        deleteHero = heroes.get(deletePostion);
-                        //httpBinder.deleteHero(deleteHero.getId(), deleteCallBack);
-                    }
+                    deleteHero = heroes.get(position);
+                    deletePostion = position;
+                    dao.deleteHero(deleteHero.getId(), deleteCallBack);
                     break;
                 case ItemTouchHelper.RIGHT:
                     //https://stackoverflow.com/questions/28984879/how-to-open-a-different-fragment-on-recyclerview-onclick
@@ -223,16 +241,24 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
     public final Handler deleteCallBack = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Boolean result = (Boolean) msg.obj;
-            if (result == true) {
-                String message = "Are you sure you want to delete" + deleteHero.getName();
+            Boolean error = (Boolean) msg.obj;
+            if (error == false) {
+                //heroes.remove(deletePostion);
+                adapter.itemRemoved(deletePostion);
+                //adapter.notifyDataSetChanged();
+
+                String message = "Are you sure you want to delete " + deleteHero.getName();
                 Snackbar.make(rvHeroes, message, Snackbar.LENGTH_LONG)
                         .setAction("Undo", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 heroes.add(deletePostion, deleteHero);
                                 adapter.notifyItemInserted(deletePostion);
-                               // httpBinder.createHero(deleteHero, createCallBack);
+                                try {
+                                    dao.insertHero(deleteHero, recreateCallback);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }).show();
             } else {
@@ -241,10 +267,26 @@ public class HeroesFragment extends Fragment implements View.OnClickListener {
         }
     };
 
-    public final Handler createCallBack = new Handler() {
+    public final Handler recreateCallback = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            Boolean error = (Boolean) msg.obj;
+            if (error == false) {
+                adapter.itemAdded(deleteHero, deletePostion);
+            } else {
+                Toast.makeText(getContext(), "Error occurred!", Toast.LENGTH_SHORT).show();
+            }
         }
     };
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        adapter.spinnerFilter(spTeam.getSelectedItem().toString(), spRating.getSelectedItem().toString(), getFilterBack);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }
 

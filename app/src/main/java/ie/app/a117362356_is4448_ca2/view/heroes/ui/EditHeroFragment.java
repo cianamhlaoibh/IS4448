@@ -1,5 +1,6 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -40,8 +41,6 @@ public class EditHeroFragment extends Fragment{
     EditText etName, etRealName;
     RatingBar rbRating;
     Spinner spTeam;
-    private ServiceReceiver serviceReceiver;
-    protected HttpBoundService.BackGroundBinder httpBinder;
 
     private static final String ARG_HERO = "hero";
     private Hero hero;
@@ -69,7 +68,6 @@ public class EditHeroFragment extends Fragment{
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        serviceReceiver = (ServiceReceiver) context;
     }
 
     @Override

@@ -131,42 +131,25 @@ public class HeroHttpHandler {
         MyApplication.getInstance().addToRequestQueue(jsonObjRequest);
     }
 
-    public static String deleteHero(String uri) {
+    public static void deleteHero(String url,final VolleyHeroCallback callback) {
+        StringRequest jsonObjRequest = new StringRequest(
+                Request.Method.DELETE,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        callback.onSuccessStringResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
 
-        String s = "no response";
-        HttpURLConnection conn = null;
-        int http_status = 0;
-
-        try {
-            URL url = new URL(uri);
-
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE"); //We be doing a DELETE
-
-            InputStream in = conn.getInputStream();
-            http_status = conn.getResponseCode();
-
-            if (http_status == 200) {
-                s = streamToString(in);
-            } else {
-                s = "bad response";
-            }
-        } catch (MalformedURLException m) {
-            s = "malformed URL exception";
-        } catch (IOException e) {
-            s = "IO exception";
-        } finally {
-            conn.disconnect();
-        }
-        return s;
-    }
-
-    private static String streamToString(InputStream in) throws IOException {
-        StringBuilder out = new StringBuilder();
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        for (String line = br.readLine(); line != null; line = br.readLine())
-            out.append(line);
-        br.close();
-        return out.toString();
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        VolleyLog.d("volley", "Error: " + error.getMessage());
+                        error.printStackTrace();
+                    }
+                }) {
+        };
+        MyApplication.getInstance().addToRequestQueue(jsonObjRequest);
     }
 }
