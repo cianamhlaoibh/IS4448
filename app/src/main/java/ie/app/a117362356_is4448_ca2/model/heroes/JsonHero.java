@@ -1,6 +1,8 @@
-package ie.app.a117362356_is4448_ca2.model;
+package ie.app.a117362356_is4448_ca2.model.heroes;
 
 import java.util.ArrayList;
+
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
 
 public class JsonHero {
     private String error;

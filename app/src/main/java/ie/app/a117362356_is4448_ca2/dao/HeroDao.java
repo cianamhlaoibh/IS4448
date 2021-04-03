@@ -5,18 +5,13 @@ import android.os.Message;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import ie.app.a117362356_is4448_ca2.handlers.HeroHttpHandler;
-import ie.app.a117362356_is4448_ca2.model.Hero;
-import ie.app.a117362356_is4448_ca2.model.JsonHero;
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
+import ie.app.a117362356_is4448_ca2.model.heroes.JsonHero;
 import ie.app.a117362356_is4448_ca2.view.utils.VolleyHeroCallback;
 
 /**

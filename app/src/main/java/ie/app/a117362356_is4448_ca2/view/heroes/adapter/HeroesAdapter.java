@@ -2,7 +2,6 @@ package ie.app.a117362356_is4448_ca2.view.heroes.adapter;
 
 import android.content.Context;
 import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ie.app.a117362356_is4448_ca2.R;
-import ie.app.a117362356_is4448_ca2.model.Hero;
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
 
 /**
  * https://www.youtube.com/watch?v=sJ-Z9G0SDhc

@@ -1,13 +1,9 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,13 +19,9 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 
-import java.util.ArrayList;
-
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.HeroDao;
-import ie.app.a117362356_is4448_ca2.model.Hero;
-import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
-import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
 
 /**
  * https://stackoverflow.com/questions/13067033/how-to-access-activity-variables-from-a-fragment-android

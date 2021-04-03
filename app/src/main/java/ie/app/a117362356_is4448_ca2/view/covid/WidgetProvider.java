@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
-import ie.app.a117362356_is4448_ca2.model.CovidCountryStats;
+import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 
 
 /**
@@ -41,12 +41,12 @@ public class WidgetProvider extends AppWidgetProvider {
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void handleMessage(Message msg) {
-            ArrayList<CovidCountryStats> stats = (ArrayList<CovidCountryStats>) msg.obj;
+            ArrayList<CountryStats> stats = (ArrayList<CountryStats>) msg.obj;
             long cases, deaths;
             int size;
             size = stats.size();
-            CovidCountryStats today = stats.get(size);
-            CovidCountryStats yesterday = stats.get(size - 1);
+            CountryStats today = stats.get(size);
+            CountryStats yesterday = stats.get(size - 1);
             cases = today.getConfirmed() - yesterday.getConfirmed();
             deaths = today.getDeaths() - yesterday.getDeaths();
 

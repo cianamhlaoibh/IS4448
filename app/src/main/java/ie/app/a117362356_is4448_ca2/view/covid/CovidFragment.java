@@ -12,6 +12,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -40,20 +41,23 @@ import java.util.Locale;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
-import ie.app.a117362356_is4448_ca2.model.CovidCountryStats;
+import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
+import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
+import ie.app.a117362356_is4448_ca2.view.heroes.ui.AddHeroFragment;
 
 /**
  * https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
- *
+ * <p>
  * https://learntodroid.com/how-to-display-a-line-chart-in-your-android-app/
  */
-public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChangeListener {
+public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChangeListener, View.OnClickListener {
 
     TextView tvCases, tvDeaths, tvTotalConfirmed, tvTotalDeath, tvTotalActive, tvTotalRecovered;
     RadioGroup rgTimeRange;
+    Button btnGlobal;
     private LineChart lineChart;
     ProgressBar pbLoad;
-    ArrayList<CovidCountryStats> stats;
+    ArrayList<CountryStats> stats;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -103,6 +107,7 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         super.onResume();
         CovidDao dao = new CovidDao();
         dao.selectCountryStats("ireland", getCallBack);
+        dao.selectGlobalSummary(getGlobalCallBack);
     }
 
     @Nullable
@@ -121,6 +126,8 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         configureLineChart();
         pbLoad = root.findViewById(R.id.pbLoad);
         pbLoad.setVisibility(View.VISIBLE);
+        btnGlobal = root.findViewById(R.id.btnGlobal);
+        btnGlobal.setOnClickListener(this);
         //pbLoad.setAnimation(android.animation.ValueAnimator.sDurationScale == 0.0f);
         return root;
     }
@@ -147,7 +154,7 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void handleMessage(Message msg) {
-            stats = (ArrayList<CovidCountryStats>) msg.obj;
+            stats = (ArrayList<CountryStats>) msg.obj;
             setDailyFigures(stats);
             setOverviewToDate(stats);
             setupChartData(stats, "All");
@@ -156,7 +163,20 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         }
     };
 
-    private void updateWidget(ArrayList<CovidCountryStats> stats) {
+    public final Handler getGlobalCallBack = new Handler() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void handleMessage(Message msg) {
+            GlobalSummary gs = (GlobalSummary) msg.obj;
+            setDailyFigures(stats);
+            setOverviewToDate(stats);
+            setupChartData(stats, "All");
+            updateWidget(stats);
+            pbLoad.setVisibility(View.GONE);
+        }
+    };
+
+    private void updateWidget(ArrayList<CountryStats> stats) {
         Application app = getActivity().getApplication();
         Intent intent = new Intent(getContext(), WidgetProvider.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
@@ -167,7 +187,7 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    private void setupChartData(List<CovidCountryStats> stats, String timeRange) {
+    private void setupChartData(List<CountryStats> stats, String timeRange) {
         ArrayList<Entry> dailyConfirmedCases = new ArrayList<>();
         float x, y;
         int size;
@@ -185,26 +205,26 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
                 }
                 break;
             case "Last Month": //shows cases for past 28 days
-                size= stats.size();
-                List<CovidCountryStats> pastMonthsStats = stats.subList(size - 29, size);
+                size = stats.size();
+                List<CountryStats> pastMonthsStats = stats.subList(size - 29, size);
                 for (int i = 1; i <= 28; i++) {
-                    CovidCountryStats stat = pastMonthsStats.get(i);
+                    CountryStats stat = pastMonthsStats.get(i);
                     Date statDate = stat.getDate();
                     long statTime = statDate.getTime();
                     x = statTime;
-                    y = stat.getConfirmed() - pastMonthsStats.get(i-1).getConfirmed();
+                    y = stat.getConfirmed() - pastMonthsStats.get(i - 1).getConfirmed();
                     dailyConfirmedCases.add(new Entry(x, y));
                 }
                 break;
             case "Last Week":
                 size = stats.size();
-                List<CovidCountryStats> pastWeeksStats = stats.subList(size - 8, size);
+                List<CountryStats> pastWeeksStats = stats.subList(size - 8, size);
                 for (int i = 1; i <= 7; i++) {
-                    CovidCountryStats stat = pastWeeksStats.get(i);
+                    CountryStats stat = pastWeeksStats.get(i);
                     Date statDate = stat.getDate();
                     long statTime = statDate.getTime();
                     x = statTime;
-                    y = stat.getConfirmed() - pastWeeksStats.get(i-1).getConfirmed();
+                    y = stat.getConfirmed() - pastWeeksStats.get(i - 1).getConfirmed();
                     dailyConfirmedCases.add(new Entry(x, y));
                 }
                 break;
@@ -233,8 +253,8 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     }
 
     //https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
-    private void setOverviewToDate(ArrayList<CovidCountryStats> stats) {
-        CovidCountryStats statsToday = stats.get(stats.size() - 1);
+    private void setOverviewToDate(ArrayList<CountryStats> stats) {
+        CountryStats statsToday = stats.get(stats.size() - 1);
         NumberFormat format = NumberFormat.getInstance();
         tvTotalConfirmed.setText(format.format(statsToday.getConfirmed()));
         tvTotalDeath.setText(format.format(statsToday.getDeaths()));
@@ -242,11 +262,11 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         tvTotalRecovered.setText(format.format(statsToday.getRecovered()));
     }
 
-    private void setDailyFigures(ArrayList<CovidCountryStats> stats) {
+    private void setDailyFigures(ArrayList<CountryStats> stats) {
         int size = stats.size();
         NumberFormat format = NumberFormat.getInstance();
-        CovidCountryStats today = stats.get(size - 1);
-        CovidCountryStats yesterday = stats.get(size - 2);
+        CountryStats today = stats.get(size - 1);
+        CountryStats yesterday = stats.get(size - 2);
         long cases = today.getConfirmed() - yesterday.getConfirmed();
         long deaths = today.getDeaths() - yesterday.getDeaths();
         tvCases.setText(format.format(cases));
@@ -266,6 +286,14 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
             case R.id.rbWeekly:
                 setupChartData(stats, "Last Week");
                 break;
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.btnGlobal) {
+            CovidGlobalFragment fragment = CovidGlobalFragment.newInstance();
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
         }
     }
 }

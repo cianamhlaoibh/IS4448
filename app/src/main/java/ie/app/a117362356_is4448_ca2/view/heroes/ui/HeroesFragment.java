@@ -10,12 +10,10 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -41,10 +39,8 @@ import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.HeroDao;
-import ie.app.a117362356_is4448_ca2.model.Hero;
-import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
 import ie.app.a117362356_is4448_ca2.view.heroes.adapter.HeroesAdapter;
-import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator;
 
 

@@ -1,6 +1,5 @@
 package ie.app.a117362356_is4448_ca2.view.heroes.ui;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -23,13 +22,9 @@ import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.DataOutput;
-
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.HeroDao;
-import ie.app.a117362356_is4448_ca2.model.Hero;
-import ie.app.a117362356_is4448_ca2.services.HttpBoundService;
-import ie.app.a117362356_is4448_ca2.view.utils.ServiceReceiver;
+import ie.app.a117362356_is4448_ca2.model.heroes.Hero;
 
 /**
  * A simple {@link Fragment} subclass.

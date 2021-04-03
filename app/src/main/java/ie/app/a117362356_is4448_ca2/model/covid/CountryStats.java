@@ -1,10 +1,10 @@
-package ie.app.a117362356_is4448_ca2.model;
+package ie.app.a117362356_is4448_ca2.model.covid;
 
 import android.widget.SearchView;
 
 import java.util.Date;
 
-public class CovidCountryStats {
+public class CountryStats {
     private String ID;
     private String Country;
     private String CountryCode;

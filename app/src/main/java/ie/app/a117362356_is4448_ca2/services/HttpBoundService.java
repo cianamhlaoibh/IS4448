@@ -77,7 +77,7 @@ public class HttpBoundService extends Service {
 //            new Thread(CovidThreadGroup, new Runnable() {
 //                @Override
 //                public void run() {
-//                    ArrayList<CovidCountryStats> covidStatsList = CovidDao.selectCountryStats(country);
+//                    ArrayList<CountryStats> covidStatsList = CovidDao.selectCountryStats(country);
 //                    Message msg = new Message();
 //                    msg.obj = covidStatsList;
 //                    handler.sendMessage(msg);
