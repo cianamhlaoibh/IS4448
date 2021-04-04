@@ -12,7 +12,7 @@ public class GlobalSummary {
         return Countries;
     }
 
-    public void setGlobal(StatSummary global) {
-        Global = global;
+    public StatSummary getGlobal() {
+        return Global;
     }
 }

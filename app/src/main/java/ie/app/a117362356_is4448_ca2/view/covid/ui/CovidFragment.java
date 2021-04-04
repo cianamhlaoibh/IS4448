@@ -1,4 +1,4 @@
-package ie.app.a117362356_is4448_ca2.view.covid;
+package ie.app.a117362356_is4448_ca2.view.covid.ui;
 
 import android.app.Application;
 import android.appwidget.AppWidgetManager;
@@ -43,7 +43,6 @@ import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
-import ie.app.a117362356_is4448_ca2.view.heroes.ui.AddHeroFragment;
 
 /**
  * https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
@@ -107,7 +106,6 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         super.onResume();
         CovidDao dao = new CovidDao();
         dao.selectCountryStats("ireland", getCallBack);
-        dao.selectGlobalSummary(getGlobalCallBack);
     }
 
     @Nullable
@@ -155,19 +153,6 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         @Override
         public void handleMessage(Message msg) {
             stats = (ArrayList<CountryStats>) msg.obj;
-            setDailyFigures(stats);
-            setOverviewToDate(stats);
-            setupChartData(stats, "All");
-            updateWidget(stats);
-            pbLoad.setVisibility(View.GONE);
-        }
-    };
-
-    public final Handler getGlobalCallBack = new Handler() {
-        @RequiresApi(api = Build.VERSION_CODES.N)
-        @Override
-        public void handleMessage(Message msg) {
-            GlobalSummary gs = (GlobalSummary) msg.obj;
             setDailyFigures(stats);
             setOverviewToDate(stats);
             setupChartData(stats, "All");

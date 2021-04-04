@@ -1,4 +1,4 @@
-package ie.app.a117362356_is4448_ca2.view.covid;
+package ie.app.a117362356_is4448_ca2.view.covid.ui;
 
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
