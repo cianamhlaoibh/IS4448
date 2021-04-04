@@ -13,6 +13,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import android.widget.SearchView;
+
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,17 +26,20 @@ import java.util.List;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
+import ie.app.a117362356_is4448_ca2.model.covid.CountrySummary;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
 import ie.app.a117362356_is4448_ca2.model.covid.StatSummary;
 import ie.app.a117362356_is4448_ca2.view.covid.adapter.CountryAdapter;
+import ie.app.a117362356_is4448_ca2.view.utils.OnClickCallBack;
 
-public class CovidGlobalFragment extends Fragment {
+public class CovidGlobalFragment extends Fragment implements OnClickCallBack {
 
     RecyclerView rvCountries;
     List<StatSummary> stats;
     CountryAdapter adapter;
     ProgressBar pbLoad;
     TextView tvNewConfirmed, tvTotalConfirmed, tvNewDeaths, tvTotalDeaths, tvNewRecovered, tvTotalRecovered;
+    SearchView searchView;
 
     public CovidGlobalFragment() {
         // Required empty public constructor
@@ -74,8 +80,22 @@ public class CovidGlobalFragment extends Fragment {
         rvCountries = root.findViewById(R.id.rvCountries);
         rvCountries.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         stats = new ArrayList<>();
-        adapter = new CountryAdapter(stats, getContext());
+        adapter = new CountryAdapter(stats, getContext(), this);
         rvCountries.setAdapter(adapter);
+
+        searchView = root.findViewById(R.id.svCountries);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
         return root;
     }
 
@@ -90,7 +110,8 @@ public class CovidGlobalFragment extends Fragment {
             pbLoad.setVisibility(View.GONE);
         }
     };
-//https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
+
+    //https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
     private void setGlobalFigures(StatSummary global) {
         NumberFormat format = NumberFormat.getInstance();
         tvNewConfirmed.setText(format.format(global.getNewConfirmed()));
@@ -99,5 +120,11 @@ public class CovidGlobalFragment extends Fragment {
         tvTotalConfirmed.setText(format.format(global.getTotalConfirmed()));
         tvTotalDeaths.setText(format.format(global.getTotalDeaths()));
         tvTotalRecovered.setText(format.format(global.getTotalRecovered()));
+    }
+
+    @Override
+    public void OnClickCallback(StatSummary stat, int position) {
+        CountrySummary fragment = CountrySummary.newInstance(stat);
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
     }
 }

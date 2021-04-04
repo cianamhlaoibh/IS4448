@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">IS4448</string>
     <string name="title_heroes">Heroes</string>
-    <string name="title_covid">COVID-19 Updates</string>
+    <string name="title_covid_ireland">COVID-19 Updates</string>
+    <string name="title_covid_global">COVID-19 Updates - Global</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_add_hero">Add Hero</string>
     <string name="add_name">Hero\'s Name</string>
