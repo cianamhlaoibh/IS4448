@@ -26,7 +26,6 @@ import java.util.List;
 
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
-import ie.app.a117362356_is4448_ca2.model.covid.CountrySummary;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
 import ie.app.a117362356_is4448_ca2.model.covid.StatSummary;
 import ie.app.a117362356_is4448_ca2.view.covid.adapter.CountryAdapter;
@@ -60,8 +59,6 @@ public class CovidGlobalFragment extends Fragment implements OnClickCallBack {
     @Override
     public void onResume() {
         super.onResume();
-        CovidDao dao = new CovidDao();
-        dao.selectGlobalSummary(getGlobalCallBack);
     }
 
     @Nullable
@@ -82,6 +79,8 @@ public class CovidGlobalFragment extends Fragment implements OnClickCallBack {
         stats = new ArrayList<>();
         adapter = new CountryAdapter(stats, getContext(), this);
         rvCountries.setAdapter(adapter);
+        CovidDao dao = new CovidDao();
+        dao.selectGlobalSummary(getGlobalCallBack);
 
         searchView = root.findViewById(R.id.svCountries);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

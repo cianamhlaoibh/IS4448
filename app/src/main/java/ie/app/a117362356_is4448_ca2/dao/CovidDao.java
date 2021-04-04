@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import ie.app.a117362356_is4448_ca2.handlers.CovidHttpHandler;
+import ie.app.a117362356_is4448_ca2.model.covid.CountryDetail;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
 import ie.app.a117362356_is4448_ca2.model.heroes.JsonHero;
@@ -61,6 +62,26 @@ public class CovidDao {
                 Message msg = new Message();
                 msg.obj = gs;
                 handler.sendMessage(msg);
+            }
+        });
+    }
+
+    public void selectCountryDetails(String country, String dateFrom, String dateTo, final Handler handler) {
+        String getConnURI = connURI + "country/" + country + "/status/confirmed?from=" + dateFrom + "T00:00:00Z&to=" + dateTo + "T00:00:00Z";
+        CovidHttpHandler.getStats(getConnURI, new VolleyCovidCallback() {
+            @Override
+            public void onSuccessResponse(JSONArray result) {
+                Gson gson = new Gson();
+                Type userListType = new TypeToken<ArrayList<CountryDetail>>() {}.getType();
+                ArrayList<CountryDetail> details = gson.fromJson(String.valueOf(result), userListType);
+                Message msg = new Message();
+                msg.obj = details;
+                handler.sendMessage(msg);
+            }
+
+            @Override
+            public void onSuccessResponse(JSONObject result) {
+
             }
         });
     }
