@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
+import ie.app.a117362356_is4448_ca2.view.utils.ErrorCallback;
 
 
 /**
  * https://www.linkedin.com/learning/search?keywords=android%20widget&u=92780010
  */
-public class WidgetProvider extends AppWidgetProvider {
+public class WidgetProvider extends AppWidgetProvider implements ErrorCallback {
     private static final String TAG = "WidgetProvider";
     Context context;
     AppWidgetManager appWidgetManager;
@@ -30,7 +31,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context,
                          AppWidgetManager appWidgetManager,
                          int[] appWidgetIds) {
-        CovidDao dao = new CovidDao();
+        CovidDao dao = new CovidDao(this);
         dao.selectCountryStats("ireland", getCallBack);
         this.context = context;
         this.appWidgetManager = appWidgetManager;
@@ -59,4 +60,9 @@ public class WidgetProvider extends AppWidgetProvider {
             }
         }
     };
+
+    @Override
+    public void onDataAccessError(String error) {
+
+    }
 }

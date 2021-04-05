@@ -23,6 +23,7 @@ public class CovidHttpHandler{
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                callback.onErrorResponse(error.getMessage());
                 VolleyLog.e("Error: ", error.getMessage());
             }
         });
@@ -40,6 +41,7 @@ public class CovidHttpHandler{
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                callback.onErrorResponse(error.getMessage());
                 VolleyLog.e("Error: ", error.getMessage());
             }
         });

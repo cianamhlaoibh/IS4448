@@ -18,6 +18,7 @@ import ie.app.a117362356_is4448_ca2.model.covid.CountryDetail;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
 import ie.app.a117362356_is4448_ca2.model.heroes.JsonHero;
+import ie.app.a117362356_is4448_ca2.view.utils.ErrorCallback;
 import ie.app.a117362356_is4448_ca2.view.utils.VolleyCovidCallback;
 
 
@@ -26,6 +27,11 @@ import ie.app.a117362356_is4448_ca2.view.utils.VolleyCovidCallback;
  */
 public class CovidDao {
     public static final String connURI = "https://api.covid19api.com/";
+    private ErrorCallback errorCallback;
+
+    public CovidDao(ErrorCallback errorCallback) {
+        this.errorCallback = errorCallback;
+    }
 
     public void selectCountryStats(String country, final Handler handler) throws JsonSyntaxException {
         String getConnURI = connURI + "live/country/" + country;
@@ -43,6 +49,11 @@ public class CovidDao {
             @Override
             public void onSuccessResponse(JSONObject result) {
 
+            }
+
+            @Override
+            public void onErrorResponse(String error) {
+                errorCallback.onDataAccessError(error);
             }
         });
     }
@@ -63,6 +74,11 @@ public class CovidDao {
                 msg.obj = gs;
                 handler.sendMessage(msg);
             }
+
+            @Override
+            public void onErrorResponse(String error) {
+                errorCallback.onDataAccessError(error);
+            }
         });
     }
 
@@ -82,6 +98,11 @@ public class CovidDao {
             @Override
             public void onSuccessResponse(JSONObject result) {
 
+            }
+
+            @Override
+            public void onErrorResponse(String error) {
+                errorCallback.onDataAccessError(error);
             }
         });
     }

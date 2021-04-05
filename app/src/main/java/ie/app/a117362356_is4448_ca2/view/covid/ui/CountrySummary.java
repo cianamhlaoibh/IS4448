@@ -2,6 +2,7 @@ package ie.app.a117362356_is4448_ca2.view.covid.ui;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -20,6 +22,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.github.mikephil.charting.data.Entry;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -36,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -44,19 +49,26 @@ import ie.app.a117362356_is4448_ca2.dao.CovidDao;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryDetail;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 import ie.app.a117362356_is4448_ca2.model.covid.StatSummary;
+import ie.app.a117362356_is4448_ca2.view.utils.ErrorCallback;
 
 /**
  * https://www.youtube.com/watch?v=118wylgD_ig
+ * <p>
+ * IS4447GoogleMapApp
  */
-public class CountrySummary extends Fragment implements OnMapReadyCallback {
+public class CountrySummary extends Fragment implements OnMapReadyCallback, ErrorCallback, View.OnClickListener {
     private static final String ARG_SUMMARY = "summary";
     private StatSummary summary;
     private ProgressBar pbLoad;
     private Toolbar toolbar;
+    private TextView tvOverview;
+    ImageButton btnRefresh;
     private CovidDao dao;
     ArrayList<CountryStats> stats;
     TextView tvNewConfirmed, tvTotalConfirmed, tvNewDeaths, tvTotalDeaths, tvNewRecovered, tvTotalRecovered;
     GoogleMap map;
+    String dateTo;
+    String dateFrom;
 
     public static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     private MapView mMapView;
@@ -99,17 +111,21 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         tvTotalConfirmed = root.findViewById(R.id.tvTotalConfirmed);
         tvTotalDeaths = root.findViewById(R.id.tvTotalDeath);
         tvTotalRecovered = root.findViewById(R.id.tvTotalActive);
+        tvOverview =root.findViewById(R.id.tvOverview);
 //        setHasOptionsMenu(true);
 
-        dao = new CovidDao();
+        dao = new CovidDao(this);
         Date today = new Date();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        String dateTo = df.format(today);
-        String dateFrom = df.format(yesterday());
+        dateTo = df.format(today);
+        dateFrom = df.format(yesterday());
         dao.selectCountryDetails(summary.getSlug(), dateFrom, dateTo, getDetailsCallback);
 
         pbLoad = root.findViewById(R.id.pbLoad);
         pbLoad.setVisibility(View.VISIBLE);
+
+        btnRefresh = root.findViewById(R.id.btnRefresh);
+        btnRefresh.setOnClickListener(this);
 
         initOverviewFigures();
         mMapView = root.findViewById(R.id.mapView);
@@ -134,8 +150,8 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         public void handleMessage(Message msg) {
             dao.selectCountryStats(summary.getSlug(), getSummaryCallBack);
             List<CountryDetail> details = (ArrayList<CountryDetail>) msg.obj;
-            if(details.size()>1)
-                detail = details.get(details.size()-1);
+            if (details.size() >= 1)
+                detail = details.get(details.size() - 1);
         }
     };
 
@@ -145,6 +161,7 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         public void handleMessage(Message msg) {
             stats = (ArrayList<CountryStats>) msg.obj;
             try {
+                setOverviewDate();
                 setCountryConfirmedCasesMarkers();
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -152,6 +169,13 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
             pbLoad.setVisibility(View.GONE);
         }
     };
+
+    private void setOverviewDate() {
+        Date date = stats.get(stats.size()-1).getDate();
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        String date1 = df.format(date);
+        tvOverview.setText("Overview as of " + date1);
+    }
 
     private void initGoogleMap(Bundle savedInstanceState) {
         // *** IMPORTANT ***
@@ -218,6 +242,7 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         this.map = map;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void setCountryConfirmedCasesMarkers() throws ParseException {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(detail.getLat(), detail.getLon()), 5));
 
@@ -226,52 +251,65 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         String date = df.format(today);
         List<CountryStats> todaysStats = new ArrayList<>();
-        for (int i = stats.size()-1; i >=0; i--){
+        for (int i = stats.size() - 1; i >= 0; i--) {
             String date1 = df.format(stats.get(i).getDate());
             if (date1.equals(date)) {
                 todaysStats.add(stats.get(i));
-            }else{
+            } else {
                 break;
             }
         }
         if (todaysStats.size() > 1) {
+            //sort today's stats by number of confirmed cases in increasing order
+            Comparator<CountryStats> comparator = new Comparator<CountryStats>() {
+                @Override
+                public int compare(CountryStats o1, CountryStats o2) {
+                    return Float.compare(o1.getConfirmed(), o2.getConfirmed());
+                }
+            };
+            todaysStats.sort(comparator);
+            int count = 1;
             for (CountryStats stat : todaysStats) {
                 // Add a marker in UCC and move the camera
                 LatLng marker = new LatLng(stat.getLat(), stat.getLon());
 
-                CircleOptions circleOptions = new CircleOptions()
-                        .center(marker)
-                        .radius(100)
-                        .fillColor(0x44ff0000)
-                        .strokeColor(0xffff0000) //red outline
-                        .strokeWidth(2); //opaque red fill
-                map.addCircle(circleOptions);
-
                 map.addMarker(new MarkerOptions()
                         .position(marker)
                         .title(stat.getProvince())
-                        .snippet("Total Confirmed Cases: " + format.format(stat.getConfirmed()))
+                        .snippet("Ranking: " + count + "/" + todaysStats.size() + ", Total Cases: " + format.format(stat.getConfirmed()))
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+
+                double c = (double) stat.getConfirmed() / (double) summary.getTotalConfirmed();
+                double factor = (c * 10.00);
+
+                CircleOptions circleOptions = createCircle(marker, factor);
+                map.addCircle(circleOptions);
+                count++;
             }
         } else if (todaysStats.size() == 1) {
             CountryStats stat = todaysStats.get(0);
             // Add a marker in UCC and move the camera
             LatLng marker = new LatLng(detail.getLat(), detail.getLon());
 
-            CircleOptions circleOptions = new CircleOptions()
-                    .center(marker)
-                    .radius(100)
-                    .fillColor(0x44ff0000)
-                    .strokeColor(0xffff0000) //red outline
-                    .strokeWidth(2); //opaque red fill
-            map.addCircle(circleOptions);
-
             map.addMarker(new MarkerOptions()
                     .position(marker)
                     .title(detail.getCountry())
                     .snippet("Total Confirmed Cases: " + format.format(summary.getTotalConfirmed()))
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+
+            CircleOptions circleOptions = createCircle(marker, 1);
+            map.addCircle(circleOptions);
         }
+    }
+
+    public CircleOptions createCircle(LatLng marker, double factor) {
+        CircleOptions circleOptions = new CircleOptions()
+                .center(marker)
+                .radius(10000 * factor)
+                .fillColor(0x00000000)
+                .strokeColor(0xff0000ff) //red outline
+                .strokeWidth(2); //opaque red fill
+        return circleOptions;
     }
 
     @Override
@@ -292,9 +330,26 @@ public class CountrySummary extends Fragment implements OnMapReadyCallback {
         mMapView.onLowMemory();
     }
 
+    //https://stackoverflow.com/questions/11425236/get-yesterdays-date-using-date
     private Date yesterday() {
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         return cal.getTime();
+    }
+
+    @Override
+    public void onDataAccessError(String error) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btnRefresh:
+                dao.selectCountryDetails(summary.getSlug(), dateFrom, dateTo, getDetailsCallback);
+                btnRefresh.setVisibility(View.GONE);
+                pbLoad.setVisibility(View.VISIBLE);
+                break;
+        }
     }
 }

@@ -6,4 +6,5 @@ import org.json.JSONObject;
 public interface VolleyCovidCallback {
     void onSuccessResponse(JSONArray result);
     void onSuccessResponse(JSONObject result);
+    void onErrorResponse(String error);
 }

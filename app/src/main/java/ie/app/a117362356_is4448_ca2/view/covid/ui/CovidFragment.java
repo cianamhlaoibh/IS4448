@@ -13,9 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +33,7 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,19 +46,23 @@ import ie.app.a117362356_is4448_ca2.R;
 import ie.app.a117362356_is4448_ca2.dao.CovidDao;
 import ie.app.a117362356_is4448_ca2.model.covid.CountryStats;
 import ie.app.a117362356_is4448_ca2.model.covid.GlobalSummary;
+import ie.app.a117362356_is4448_ca2.view.utils.ErrorCallback;
 
 /**
  * https://www.java67.com/2015/06/how-to-format-numbers-in-java.html#:~:text=In%20order%20to%20print%20numbers,number%20starting%20from%20the%20right.
  * <p>
  * https://learntodroid.com/how-to-display-a-line-chart-in-your-android-app/
  */
-public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChangeListener, View.OnClickListener {
+public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChangeListener, View.OnClickListener, ErrorCallback {
 
     TextView tvCases, tvDeaths, tvTotalConfirmed, tvTotalDeath, tvTotalActive, tvTotalRecovered;
     RadioGroup rgTimeRange;
+    TextView tvOverview;
     Button btnGlobal;
+    ImageButton btnRefresh;
     private LineChart lineChart;
     ProgressBar pbLoad;
+    CovidDao dao;
     ArrayList<CountryStats> stats;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -104,20 +111,22 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
     @Override
     public void onResume() {
         super.onResume();
-        CovidDao dao = new CovidDao();
-        dao.selectCountryStats("ireland", getCallBack);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_covid, container, false);
+        dao = new CovidDao(this);
+        dao.selectCountryStats("ireland", getCallBack);
+
         tvCases = root.findViewById(R.id.tvCases);
         tvDeaths = root.findViewById(R.id.tvDeaths);
         tvTotalConfirmed = root.findViewById(R.id.tvTotalConfirmed);
         tvTotalDeath = root.findViewById(R.id.tvTotalDeath);
         tvTotalActive = root.findViewById(R.id.tvTotalActive);
         tvTotalRecovered = root.findViewById(R.id.tvTotalRecovered);
+        tvOverview = root.findViewById(R.id.tvOverview);
         lineChart = root.findViewById(R.id.lcCases);
         rgTimeRange = root.findViewById(R.id.rgTimeRange);
         rgTimeRange.setOnCheckedChangeListener(this);
@@ -126,6 +135,8 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
         pbLoad.setVisibility(View.VISIBLE);
         btnGlobal = root.findViewById(R.id.btnGlobal);
         btnGlobal.setOnClickListener(this);
+        btnRefresh = root.findViewById(R.id.btnRefresh);
+        btnRefresh.setOnClickListener(this);
         //pbLoad.setAnimation(android.animation.ValueAnimator.sDurationScale == 0.0f);
         return root;
     }
@@ -157,9 +168,17 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
             setOverviewToDate(stats);
             setupChartData(stats, "All");
             updateWidget(stats);
+            setOverviewDate();
             pbLoad.setVisibility(View.GONE);
         }
     };
+
+    private void setOverviewDate() {
+        Date date = stats.get(stats.size()-1).getDate();
+        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        String date1 = df.format(date);
+        tvOverview.setText("Overview as of " + date1);
+    }
 
     private void updateWidget(ArrayList<CountryStats> stats) {
         Application app = getActivity().getApplication();
@@ -276,9 +295,23 @@ public class CovidFragment extends Fragment implements RadioGroup.OnCheckedChang
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btnGlobal) {
-            CovidGlobalFragment fragment = CovidGlobalFragment.newInstance();
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
+        switch(v.getId()) {
+            case R.id.btnGlobal:
+                CovidGlobalFragment fragment = CovidGlobalFragment.newInstance();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).addToBackStack(null).commit();
+                break;
+            case R.id.btnRefresh:
+                dao.selectCountryStats("ireland", getCallBack);
+                btnRefresh.setVisibility(View.GONE);
+                pbLoad.setVisibility(View.VISIBLE);
+                break;
         }
+    }
+
+    @Override
+    public void onDataAccessError(String error) {
+        pbLoad.setVisibility(View.GONE);
+        Toast.makeText(getContext(), "Error retrieving data. Please refresh!", Toast.LENGTH_SHORT).show();
+        btnRefresh.setVisibility(View.VISIBLE);
     }
 }

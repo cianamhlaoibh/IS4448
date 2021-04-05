@@ -37,6 +37,8 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbarLayout"
         tools:visibility="visible" />
 
+
+
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
@@ -49,6 +51,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageButton
+                android:id="@+id/btnRefresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/custom_circle_button"
+                android:src="@drawable/ic_refresh"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
             <!--    Daily Figures    -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout"
@@ -56,11 +70,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/holder_hero_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/btnRefresh">
 
                 <TextView
                     android:id="@+id/textView7"
@@ -134,7 +149,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
 
                 <TextView
-                    android:id="@+id/textView12"
+                    android:id="@+id/tvOverview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -154,7 +169,7 @@
                     android:textSize="24sp"
                     android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView12" />
+                    app:layout_constraintTop_toBottomOf="@+id/tvOverview" />
 
                 <TextView
                     android:id="@+id/textView8"
@@ -311,6 +326,8 @@
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout3" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
